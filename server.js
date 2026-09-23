@@ -50,7 +50,7 @@ app.post('/notify', async (req, res) => {
       `👇 <b>Get started:</b>`;
     buttons = {
       inline_keyboard: [
-        [{ text: '🚀 Open Mining App', url: 'https://t.me/Solarix_ai_bot' }]
+        [{ text: '🚀 Open Mining App', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }]
       ]
     };
   } else if (type === 'package_deployed') {
@@ -66,7 +66,7 @@ app.post('/notify', async (req, res) => {
       `Open the Mini App to watch your real-time earnings grow!`;
     buttons = {
       inline_keyboard: [
-        [{ text: '⛏ Open Mining App', url: 'https://t.me/Solarix_ai_bot' }]
+        [{ text: '⛏ Open Mining App', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }]
       ]
     };
   } else if (type === 'deposit_received') {
@@ -78,7 +78,7 @@ app.post('/notify', async (req, res) => {
       `<i>Your funds have been credited to your holding balance.</i>`;
     buttons = {
       inline_keyboard: [
-        [{ text: '💼 View Wallet', url: 'https://t.me/Solarix_ai_bot' }]
+        [{ text: '💼 View Wallet', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }]
       ]
     };
   } else if (type === 'withdrawal_requested') {
@@ -130,7 +130,6 @@ app.post('/webhook', async (req, res) => {
     const update = req.body;
     console.log('Webhook received:', JSON.stringify(update));
 
-    // Handle /start command
     if (update.message && update.message.text) {
       const msg = update.message;
       const chatId = msg.chat.id;
@@ -156,9 +155,9 @@ app.post('/webhook', async (req, res) => {
 
         const buttons = {
           inline_keyboard: [
-            [{ text: '🚀 Open Mining App', url: 'https://t.me/Solarix_ai_bot' }],
+            [{ text: '🚀 Open Mining App', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }],
             [{ text: '📢 Official Channel', url: 'https://t.me/solarix_ai' }],
-            [{ text: '👥 Referral Program', url: 'https://t.me/Solarix_ai_bot' }]
+            [{ text: '👥 Invite Friends', url: 'https://t.me/share/url?url=https://t.me/Solarix_ai_bot?start=ref_' + chatId + '&text=Join%20Solarix%20AI!' }]
           ]
         };
 
