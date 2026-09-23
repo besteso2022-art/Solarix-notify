@@ -1,0 +1,115 @@
+const express = require('express');
+const cors = require('cors');
+const fetch = require('node-fetch');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const BOT_TOKEN = process.env.BOT_TOKEN || 'PASTE_YOUR_BOT_TOKEN_HERE';
+const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+async function sendTelegram(chatId, text, replyMarkup) {
+  const body = {
+    chat_id: chatId,
+    text: text,
+    parse_mode: 'HTML',
+    disable_web_page_preview: true
+  };
+  if (replyMarkup) body.reply_markup = replyMarkup;
+
+  const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+app.post('/notify', async (req, res) => {
+  const { chatId, type, data } = req.body;
+
+  if (!chatId || !type) {
+    return res.status(400).json({ error: 'Missing chatId or type' });
+  }
+
+  let text = '';
+  let buttons = null;
+
+  if (type === 'welcome') {
+    text =
+      `👋 <b>Welcome to Solarix AI, ${data.name}!</b>\n\n` +
+      `🆔 <b>User ID:</b> <code>${chatId}</code>\n` +
+      `👤 <b>Username:</b> @${data.username || 'solarix_user'}\n\n` +
+      `💎 <i>Mine Solarix daily, invite friends, complete tasks, and swap SLX to USDT directly!</i>\n\n` +
+      `👇 <b>Get started:</b>`;
+    buttons = {
+      inline_keyboard: [
+        [{ text: '🚀 Open Mining App', web_app: { url: 'https://t.me/Solarix_ai_bot/app' } }]
+      ]
+    };
+  } else if (type === 'package_deployed') {
+    text =
+      `🎉 <b>Mining Rig Activated Successfully!</b>\n\n` +
+      `Congratulations Miner! Your new mining hardware is now live and working 24/7:\n\n` +
+      `⚡ <b>Rig:</b> Solarix ${data.packageName} Node\n` +
+      `💰 <b>Cost:</b> ${data.cost} USDT\n` +
+      `📈 <b>Daily Profit:</b> +${data.dailyRate} SLX / day\n` +
+      `⏳ <b>Duration:</b> 30 Days\n` +
+      `🚀 <b>Hasrate:</b> ${data.speed} GH/S\n\n` +
+      `⛏ <i>Your mining speed has been boosted!</i>\n` +
+      `Open the Mini App to watch your real-time earnings grow!`;
+    buttons = {
+      inline_keyboard: [
+        [{ text: '⛏ Open Mining App', web_app: { url: 'https://t.me/Solarix_ai_bot/app' } }]
+      ]
+    };
+  } else if (type === 'deposit_received') {
+    text =
+      `✅ <b>Deposit Confirmed!</b>\n\n` +
+      `💰 <b>Amount:</b> ${data.amount} USDT\n` +
+      `🔗 <b>Tx Hash:</b> <code>${(data.txId || '').substring(0, 16)}...</code>\n` +
+      `📊 <b>New Balance:</b> ${data.newBalance} USDT\n\n` +
+      `<i>Your funds have been credited to your holding balance.</i>`;
+  } else if (type === 'withdrawal_requested') {
+    text =
+      `📤 <b>Withdrawal Request Received</b>\n\n` +
+      `💰 <b>Amount:</b> ${data.amount} USDT\n` +
+      `📍 <b>To Wallet:</b> <code>${data.wallet}</code>\n` +
+      `⏳ <b>Status:</b> Pending admin approval\n\n` +
+      `<i>You will be notified once processed.</i>`;
+  } else if (type === 'withdrawal_sent') {
+    text =
+      `✅ <b>Withdrawal Sent!</b>\n\n` +
+      `💰 <b>Amount:</b> ${data.amount} USDT\n` +
+      `📍 <b>To:</b> <code>${data.wallet}</code>\n\n` +
+      `<i>Please check your wallet. Transaction usually arrives within a few minutes.</i>`;
+  } else if (type === 'withdrawal_rejected') {
+    text =
+      `❌ <b>Withdrawal Rejected</b>\n\n` +
+      `💰 <b>Amount:</b> ${data.amount} USDT\n` +
+      `💵 <b>Refunded to balance.</b>\n\n` +
+      `<i>If you have questions, contact support.</i>`;
+  } else if (type === 'task_completed') {
+    text =
+      `🎯 <b>Task Completed!</b>\n\n` +
+      `📝 <b>Task:</b> ${data.taskDesc}\n` +
+      `🎁 <b>Reward:</b> +${data.reward}\n\n` +
+      `<i>Keep completing tasks to boost your earnings!</i>`;
+  } else {
+    return res.status(400).json({ error: 'Unknown type' });
+  }
+
+  try {
+    await sendTelegram(chatId, text, buttons);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Telegram send error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/', (req, res) => res.send('Solarix notify server running.'));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
