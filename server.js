@@ -49,7 +49,7 @@ app.post('/notify', async (req, res) => {
       `👇 <b>Get started:</b>`;
     buttons = {
       inline_keyboard: [
-        [{ text: '🚀 Open Mining App', web_app: { url: 'https://t.me/Solarix_ai_bot/app' } }]
+        [{ text: '🚀 Open Mining App', url: 'https://t.me/Solarix_ai_bot' }]
       ]
     };
   } else if (type === 'package_deployed') {
@@ -65,7 +65,7 @@ app.post('/notify', async (req, res) => {
       `Open the Mini App to watch your real-time earnings grow!`;
     buttons = {
       inline_keyboard: [
-        [{ text: '⛏ Open Mining App', web_app: { url: 'https://t.me/Solarix_ai_bot/app' } }]
+        [{ text: '⛏ Open Mining App', url: 'https://t.me/Solarix_ai_bot' }]
       ]
     };
   } else if (type === 'deposit_received') {
@@ -75,6 +75,11 @@ app.post('/notify', async (req, res) => {
       `🔗 <b>Tx Hash:</b> <code>${(data.txId || '').substring(0, 16)}...</code>\n` +
       `📊 <b>New Balance:</b> ${data.newBalance} USDT\n\n` +
       `<i>Your funds have been credited to your holding balance.</i>`;
+    buttons = {
+      inline_keyboard: [
+        [{ text: '💼 View Wallet', url: 'https://t.me/Solarix_ai_bot' }]
+      ]
+    };
   } else if (type === 'withdrawal_requested') {
     text =
       `📤 <b>Withdrawal Request Received</b>\n\n` +
