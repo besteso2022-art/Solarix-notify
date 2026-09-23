@@ -114,13 +114,13 @@ app.post('/notify', async (req, res) => {
       `📝 <b>Task:</b> ${data.taskDesc}\n` +
       `🎁 <b>Reward:</b> +${data.reward}\n\n` +
       `<i>Keep completing tasks to boost your earnings!</i>`;
-  } else if (type === 'referral_earned') {
-    text =
-      `🎁 <b>New Referral Bonus!</b>\n\n` +
-      `👤 Someone joined using your invite link.\n` +
-      `💰 <b>Reward:</b> +${data.amount} USDT\n` +
-      `📊 <b>Total referrals:</b> ${data.count}\n\n` +
-      `<i>Keep sharing your link to earn more!</i>`;
+} else if (type === 'referral_earned') {
+  text =
+    `🎁 <b>New Referral Bonus!</b>\n\n` +
+    `👤 Someone joined using your invite link.\n` +
+    `💰 <b>Reward:</b> +${data.amount} SLX (Locked)\n` +
+    `📊 <b>Total referrals:</b> ${data.count}\n\n` +
+    `<i>Locked SLX can only be used to purchase miners. Keep sharing to earn more!</i>`;
     buttons = {
       inline_keyboard: [
         [{ text: '👥 Invite More', url: 'https://t.me/share/url?url=https://t.me/Solarix_ai_bot?start=ref_' + chatId + '&text=Join%20Solarix%20AI!' }]
