@@ -30,6 +30,7 @@ async function sendTelegram(chatId, text, replyMarkup) {
   return json;
 }
 
+/* ====================== NOTIFY ENDPOINT ====================== */
 app.post('/notify', async (req, res) => {
   const { chatId, type, data } = req.body;
 
@@ -120,6 +121,55 @@ app.post('/notify', async (req, res) => {
   } catch (err) {
     console.error('Telegram send error:', err);
     res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/* ====================== TELEGRAM WEBHOOK (/start handler) ====================== */
+app.post('/webhook', async (req, res) => {
+  try {
+    const update = req.body;
+    console.log('Webhook received:', JSON.stringify(update));
+
+    // Handle /start command
+    if (update.message && update.message.text) {
+      const msg = update.message;
+      const chatId = msg.chat.id;
+      const text = msg.text;
+      const firstName = msg.from.first_name || 'Miner';
+      const username = msg.from.username || 'solarix_user';
+
+      if (text.startsWith('/start')) {
+        const parts = text.split(' ');
+        const payload = parts[1] || '';
+        let referralNote = '';
+        if (payload.startsWith('ref_')) {
+          referralNote = `\n🎁 <i>You were invited by a friend!</i>\n`;
+        }
+
+        const welcomeText =
+          `👋 <b>Welcome to Solarix AI, ${firstName}!</b>\n\n` +
+          `🆔 <b>User ID:</b> <code>${chatId}</code>\n` +
+          `👤 <b>Username:</b> @${username}\n` +
+          referralNote + `\n` +
+          `💎 <i>Mine Solarix daily, invite friends, complete tasks, and swap SLX to USDT directly!</i>\n\n` +
+          `👇 <b>Get started:</b>`;
+
+        const buttons = {
+          inline_keyboard: [
+            [{ text: '🚀 Open Mining App', url: 'https://t.me/Solarix_ai_bot' }],
+            [{ text: '📢 Official Channel', url: 'https://t.me/solarix_ai' }],
+            [{ text: '👥 Referral Program', url: 'https://t.me/Solarix_ai_bot' }]
+          ]
+        };
+
+        await sendTelegram(chatId, welcomeText, buttons);
+      }
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Webhook error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
