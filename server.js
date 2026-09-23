@@ -9,6 +9,12 @@ app.use(express.json());
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+const SUPABASE_URL = 'https://smfvityytelrxskotawh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZnZpdHl5dGVscnhza290YXdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0ODAzOTQsImV4cCI6MjEwNTA1NjM5NH0.5Z_td9bmFCKk67ZCQPRCtSRxEQHtny7Q0XQ5RDLFfjc';
+
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 console.log('Server starting... BOT_TOKEN set:', !!BOT_TOKEN);
 
 async function sendTelegram(chatId, text, replyMarkup) {
@@ -106,6 +112,18 @@ app.post('/notify', async (req, res) => {
       `📝 <b>Task:</b> ${data.taskDesc}\n` +
       `🎁 <b>Reward:</b> +${data.reward}\n\n` +
       `<i>Keep completing tasks to boost your earnings!</i>`;
+  } else if (type === 'referral_earned') {
+    text =
+      `🎁 <b>New Referral Bonus!</b>\n\n` +
+      `👤 Someone joined using your invite link.\n` +
+      `💰 <b>Reward:</b> +${data.amount} USDT\n` +
+      `📊 <b>Total referrals:</b> ${data.count}\n\n` +
+      `<i>Keep sharing your link to earn more!</i>`;
+    buttons = {
+      inline_keyboard: [
+        [{ text: '👥 Invite More', url: 'https://t.me/share/url?url=https://t.me/Solarix_ai_bot?start=ref_' + chatId + '&text=Join%20Solarix%20AI!' }]
+      ]
+    };
   } else {
     return res.status(400).json({ error: 'Unknown type' });
   }
@@ -141,8 +159,29 @@ app.post('/webhook', async (req, res) => {
         const parts = text.split(' ');
         const payload = parts[1] || '';
         let referralNote = '';
+
         if (payload.startsWith('ref_')) {
-          referralNote = `\n🎁 <i>You were invited by a friend!</i>\n`;
+          const referrerId = payload.replace('ref_', '');
+
+          if (referrerId && referrerId !== String(chatId)) {
+            try {
+              const { error: refErr } = await supabase
+                .from('referrals')
+                .insert({
+                  referrer_id: referrerId,
+                  new_user_id: String(chatId),
+                  rewarded: false
+                });
+
+              if (refErr && !refErr.message.includes('duplicate')) {
+                console.error('Referral insert error:', refErr);
+              } else {
+                referralNote = `\n🎁 <i>You were invited by a friend!</i>\n`;
+              }
+            } catch (e) {
+              console.error('Referral save exception:', e);
+            }
+          }
         }
 
         const welcomeText =
