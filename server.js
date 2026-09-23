@@ -15,6 +15,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const APP_URL = 'https://solarix.besteso2022.workers.dev';
+
 console.log('Server starting... BOT_TOKEN set:', !!BOT_TOKEN);
 
 async function sendTelegram(chatId, text, replyMarkup) {
@@ -56,7 +58,7 @@ app.post('/notify', async (req, res) => {
       `👇 <b>Get started:</b>`;
     buttons = {
       inline_keyboard: [
-        [{ text: '🚀 Open Mining App', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }]
+        [{ text: '🚀 Open Mining App', web_app: { url: APP_URL } }]
       ]
     };
   } else if (type === 'package_deployed') {
@@ -72,7 +74,7 @@ app.post('/notify', async (req, res) => {
       `Open the Mini App to watch your real-time earnings grow!`;
     buttons = {
       inline_keyboard: [
-        [{ text: '⛏ Open Mining App', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }]
+        [{ text: '⛏ Open Mining App', web_app: { url: APP_URL } }]
       ]
     };
   } else if (type === 'deposit_received') {
@@ -84,7 +86,7 @@ app.post('/notify', async (req, res) => {
       `<i>Your funds have been credited to your holding balance.</i>`;
     buttons = {
       inline_keyboard: [
-        [{ text: '💼 View Wallet', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }]
+        [{ text: '💼 View Wallet', web_app: { url: APP_URL } }]
       ]
     };
   } else if (type === 'withdrawal_requested') {
@@ -194,7 +196,7 @@ app.post('/webhook', async (req, res) => {
 
         const buttons = {
           inline_keyboard: [
-            [{ text: '🚀 Open Mining App', web_app: { url: 'https://friendly-stardust-3b795e.netlify.app' } }],
+            [{ text: '🚀 Open Mining App', web_app: { url: APP_URL } }],
             [{ text: '📢 Official Channel', url: 'https://t.me/solarix_ai' }],
             [{ text: '👥 Invite Friends', url: 'https://t.me/share/url?url=https://t.me/Solarix_ai_bot?start=ref_' + chatId + '&text=Join%20Solarix%20AI!' }]
           ]
