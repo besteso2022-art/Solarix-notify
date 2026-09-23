@@ -6,8 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const BOT_TOKEN = process.env.BOT_TOKEN || 'PASTE_YOUR_BOT_TOKEN_HERE';
+const BOT_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+console.log('Server starting... BOT_TOKEN set:', !!BOT_TOKEN);
 
 async function sendTelegram(chatId, text, replyMarkup) {
   const body = {
@@ -23,7 +25,9 @@ async function sendTelegram(chatId, text, replyMarkup) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
-  return res.json();
+  const json = await res.json();
+  console.log('Telegram response:', JSON.stringify(json));
+  return json;
 }
 
 app.post('/notify', async (req, res) => {
@@ -101,11 +105,16 @@ app.post('/notify', async (req, res) => {
   }
 
   try {
-    await sendTelegram(chatId, text, buttons);
-    res.json({ ok: true });
+    const result = await sendTelegram(chatId, text, buttons);
+    if (result && result.ok) {
+      res.json({ ok: true, telegram: result });
+    } else {
+      console.error('Telegram rejected:', result);
+      res.status(400).json({ ok: false, telegram: result });
+    }
   } catch (err) {
     console.error('Telegram send error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ ok: false, error: err.message });
   }
 });
 
