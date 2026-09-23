@@ -15,7 +15,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const APP_URL = 'https://solarix.besteso2022.workers.dev';
+const APP_URL = 'https://solarix-v2.besteso2022.workers.dev';
 
 console.log('Server starting... BOT_TOKEN set:', !!BOT_TOKEN);
 
